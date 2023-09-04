@@ -1,0 +1,3 @@
+redstavlja sistem za upravljanje prodavnicom sazdan iz dva dela. Prvi deo predstavlja nacin Autentikacije (koristeci JWT) a drugi deo predstavlja upravljanje samom prodavnicom i placanje. Postoje tri tipa korisnika: Kupac, Kuric i Vlasnik. Svaki je predstavljen kroz zasebnu Flask aplikaciju koja je podigunnta na Docker container.
+Placanje je omoguceno preko blockchaina, tacnije preko Ganache platforme(koriscenje u razvoju). Placanje se vrsi preko trilateralnih pametnih ugovora napisanoh u solidity jeziku.
+Sistem im dve baza podataka, jednu za korisnike u funkciji autentikacije, druga za proizvode i proudzbine u funkciji prodavnice. Obe baze su podignute na (zasebne) Docker containere i imaju odgovarajuce Docker Image-e. 
