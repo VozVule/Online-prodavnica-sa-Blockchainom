@@ -1,0 +1,120 @@
+version: '3'
+
+services:
+  authenticationDB:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+    ports:
+      - 3306:3306
+    networks:
+      - auth_net
+
+
+  authenticationDBMigrate:
+    image: authenticationdbmigration
+    environment:
+      - DATABASE_URL=authenticationDB
+    depends_on:
+      authenticationDB:
+        condition: service_healthy
+    networks:
+      - auth_net
+
+  authentication:
+    image: authentication
+    environment:
+      - DATABASE_URL=authenticationDB
+    ports:
+      - 5000:5000
+    depends_on:
+      - authenticationDBMigrate
+    networks:
+      - auth_net
+
+  adminerAuth:
+    image: adminer
+    ports:
+      - '8080:8080'
+    networks:
+      - auth_net
+
+  productdatabase:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+    ports:
+      - '3307:3306'
+    networks:
+      - prod_net
+
+
+  adminerProd:
+    image: adminer
+    ports:
+      - '8081:8080'
+    networks:
+      - prod_net
+
+  productDBMigrate:
+    image: productdbmigration
+    environment:
+      - DATABASE_URL=productdatabase
+    depends_on:
+      productdatabase:
+        condition: service_healthy
+    networks:
+      - prod_net
+
+  vlasnik:
+    image: vlasnik
+    ports:
+      - 5001:5001
+    environment:
+      - DATABASE_URL=productdatabase
+    depends_on:
+      - productDBMigrate
+    networks:
+      - prod_net
+
+  kurir:
+    image: kurir
+    ports:
+      - 5002:5002
+    environment:
+      - DATABASE_URL=productdatabase
+    depends_on:
+      - productDBMigrate
+    networks:
+      - prod_net
+
+  kupac:
+    image: kupac
+    ports:
+      - 5003:5003
+    environment:
+      - DATABASE_URL=productdatabase
+    depends_on:
+      - productDBMigrate
+    networks:
+      - prod_net
+
+  ganache-cli:
+    image: trufflesuite/ganache-cli
+    ports:
+      - '8545:8545'
+    networks:
+      - prod_net
+
+
+networks:
+  auth_net:
+  prod_net:
